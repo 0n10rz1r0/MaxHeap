@@ -8,10 +8,8 @@
 typedef struct HEAP
 {
     unsigned int key;
-    unsigned int pos;
     struct HEAP *left;
     struct HEAP *right;
-    struct HEAP *parent;
 }Heap;
 
 typedef struct MAX_HEAP
@@ -25,6 +23,15 @@ typedef struct MAX_HEAP
     int  (* is_empty)(struct MAX_HEAP *);
     int  (* get_size)(struct MAX_HEAP *);
 }MaxHeap;
+
+static void swap_key(Heap *src, Heap *dest)
+{
+    unsigned int key = 0;
+    key = src->key;
+    src->key = dest->key;
+    dest->key = key;
+    return ;
+}
 
 static int create_heap(Heap **heap, Heap *node, unsigned int size, unsigned int max)
 {
@@ -116,6 +123,47 @@ static void print_heap(Heap *heap)
     return;
 }
 
+static void adjust_heap(Heap *heap)
+{
+    Heap *left = NULL, *right = NULL, *root = heap;
+
+    while((root != NULL) && (root->left != NULL))
+    {
+        left = root->left;
+        right = root->right;
+
+        if ((left->key > root->key) && ((right == NULL) || (left->key > right->key)))
+        {
+            swap_key(root, root->left);
+            root = root->left;
+        }
+        else if ((NULL != right) && (right->key > root->key))
+        {
+            swap_key(root, root->right);
+            root = root->right;
+        }
+        else
+        {
+            break;
+        }
+    }
+
+    return;
+}
+
+static void build_heap(Heap *root)
+{
+    if(root)
+    {
+        if(root->left)
+            build_heap(root->left);
+        if(root->right)
+            build_heap(root->right);
+        adjust_heap(root);
+    }
+    return ;
+}
+
 int main(void)
 {
     MaxHeap *mhp = NULL;
@@ -127,24 +175,26 @@ int main(void)
 
 
     //insert some nodes
-    Heap heap[] = {{6, 0, NULL, NULL},
-                {1, 0, NULL, NULL},
-                {5, 0, NULL, NULL},
-                {9, 0, NULL, NULL},
-                {21, 0, NULL, NULL},
-                {11, 0, NULL, NULL},
-                {22, 0, NULL, NULL},
-                {33, 0, NULL, NULL},
-                {54, 0, NULL, NULL},
-                {29, 0, NULL, NULL},
-                {17, 0, NULL, NULL},
-                {61, 0, NULL, NULL},
-                {57, 0, NULL, NULL},
-                {87, 0, NULL, NULL},
-                {73, 0, NULL, NULL},
-                {77, 0, NULL, NULL},
-                {27, 0, NULL, NULL}};
+    Heap heap[] = {{6, NULL, NULL},
+                {1, NULL, NULL},
+                {5, NULL, NULL},
+                {9, NULL, NULL},
+                {21, NULL, NULL},
+                {11, NULL, NULL},
+                {22, NULL, NULL},
+                {33, NULL, NULL},
+                {54, NULL, NULL},
+                {29, NULL, NULL},
+                {17, NULL, NULL},
+                {61, NULL, NULL},
+                {57, NULL, NULL},
+                {87, NULL, NULL},
+                {73, NULL, NULL},
+                {77, NULL, NULL},
+                {27, NULL, NULL}};
     mhp->create(&mhp->heap, &heap[0], 1, sizeof(heap)/sizeof(heap[0]));
+
+    build_heap(mhp->heap);
 
     print_heap(mhp->heap);
     //
